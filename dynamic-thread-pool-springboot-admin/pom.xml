@@ -8,9 +8,9 @@
         <artifactId>dynamic-thread-pool</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <packaging>jar</packaging>
 
-    <artifactId>dynamic-thread-pool-test</artifactId>
+    <groupId>cn.wenzhuo4657.lus</groupId>
+    <artifactId>dynamic-thread-pool-springboot-admin</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -18,6 +18,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -54,14 +55,14 @@
             <artifactId>commons-codec</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.example</groupId>
-            <artifactId>dynamic-thread-pool-springboot-starter</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>3.26.0</version>
         </dependency>
     </dependencies>
 
     <build>
-        <finalName>dynamic-thread-pool-test</finalName>
+        <finalName>dynamic-thread-pool-admin-app</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -97,11 +98,10 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>cn.wenzhuo4657.lus.admin.DynamicThreadPool.Application</mainClass>
+                    <mainClass>Application</mainClass>
                     <layout>JAR</layout>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>

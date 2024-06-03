@@ -1,5 +1,9 @@
 package cn.wenzhuo4657.middr.registry;
 
+import cn.wenzhuo4657.middr.domain.model.enity.ThreadPoolConfigEntity;
+
+import java.util.List;
+
 /**
  * @className: IRedisRegistry
  * @author: wenzhuo4657
@@ -8,4 +12,14 @@ package cn.wenzhuo4657.middr.registry;
  * @description:
  */
 public interface IRedisRegistry {
+      /**
+         *  des: 重导入线程池列表
+         * */
+    void reportThreadPool(List<ThreadPoolConfigEntity> threadPoolEntities);
+
+      /**
+         *  des: 重导入线程池配置
+         * */
+
+    void reportThreadPoolConfigParameter(ThreadPoolConfigEntity threadPoolConfigEntity);
 }
