@@ -1,11 +1,9 @@
-package cn.wenzhuo4657.lus.admin.DynamicThreadPool.sdk.domain.model.entity;
-
-
+package cn.wenzhuo4657.middr.domain.model.enity;
 
 /**
  * @className: ThreadPoolConfigEntity
  * @author: wenzhuo4657
- * @date: 2024/6/3 19:17
+ * @date: 2024/6/12 9:46
  * @Version: 1.0
  * @description:
  */

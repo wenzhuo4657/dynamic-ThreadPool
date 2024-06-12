@@ -5,7 +5,7 @@ redis:
   sdk:
     config:
       host: localhost
-      port: 16379
+      port: 6379
       pool-size: 10
       min-idle-size: 5
       idle-timeout: 30000

@@ -30,7 +30,6 @@ public class Apitest {
 
     @Resource
     private RTopic dynamicThreadPoolRedisTopic;
-//  wenzhuo TODO 2024/6/3 : 这里没有注入成功，
 
 
     @Test

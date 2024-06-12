@@ -98,7 +98,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>Application</mainClass>
+                    <mainClass>cn.wenzhuo4657.lus.admin.DynamicThreadPool.Application</mainClass>
                     <layout>JAR</layout>
                 </configuration>
             </plugin>
