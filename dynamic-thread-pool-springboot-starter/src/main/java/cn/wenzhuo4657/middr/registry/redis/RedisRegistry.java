@@ -28,7 +28,6 @@ public class RedisRegistry implements IRedisRegistry {
         RList<Object> list = redissonClient.getList(RegistryEnumVO.THREAD_POOL_CONFIG_LIST_KEY.getKey());
         list.delete();
         list.addAll(threadPoolEntities);
-
     }
 
     @Override

@@ -23,6 +23,8 @@ dynamic:
         host: 127.0.0.1
         # redis port
         port: 6379
+        # redis数据库索引
+        DatabaseIndex: 1
 
 # 日志
 logging:

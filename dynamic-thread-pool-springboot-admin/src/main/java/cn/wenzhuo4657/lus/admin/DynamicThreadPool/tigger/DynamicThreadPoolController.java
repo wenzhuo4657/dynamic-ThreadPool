@@ -3,7 +3,7 @@ package cn.wenzhuo4657.lus.admin.DynamicThreadPool.tigger;
 
 
 import cn.wenzhuo4657.lus.admin.DynamicThreadPool.types.Response;
-import cn.wenzhuo4657.middr.domain.model.enity.ThreadPoolConfigEntity;
+import cn.wenzhuo4657.lus.admin.DynamicThreadPool.sdk.domain.model.entity.ThreadPoolConfigEntity;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RList;

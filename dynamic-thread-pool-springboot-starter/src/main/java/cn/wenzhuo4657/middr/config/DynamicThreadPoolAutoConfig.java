@@ -17,6 +17,7 @@ import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +37,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @description: 自动化配置
  */
 @Configuration
-@EnableConfigurationProperties(DynamicThreadPoolAutoProperties.class)
+//@EnableConfigurationProperties(DynamicThreadPoolAutoProperties.class)
 @EnableScheduling
 public class DynamicThreadPoolAutoConfig {
     Logger logger= LoggerFactory.getLogger(DynamicThreadPoolAutoConfig.class);
@@ -52,8 +53,11 @@ public class DynamicThreadPoolAutoConfig {
         // 获取缓存数据，设置本地线程池配置
         Set<String> threadPoolKeys = threadPoolExecutorMap.keySet();
         for (String threadPoolKey : threadPoolKeys) {
-            ThreadPoolConfigEntity threadPoolConfigEntity = redissonClient.<ThreadPoolConfigEntity>getBucket(RegistryEnumVO.THREAD_POOL_CONFIG_PARAMETER_LIST_KEY.getKey() + "_" + applicationName + "_" + threadPoolKey).get();
+            ThreadPoolConfigEntity threadPoolConfigEntity = redissonClient.
+                    <ThreadPoolConfigEntity>
+                    getBucket(RegistryEnumVO.THREAD_POOL_CONFIG_PARAMETER_LIST_KEY.getKey() + "_" + applicationName + "_" + threadPoolKey).get();
             if (null == threadPoolConfigEntity) continue;
+              //  wenzhuo TODO 2024/12/2 : 更新本地线程池 ，支持更新核心线程和最大线程数配置
             ThreadPoolExecutor threadPoolExecutor = threadPoolExecutorMap.get(threadPoolKey);
             threadPoolExecutor.setCorePoolSize(threadPoolConfigEntity.getCorePoolSize());
             threadPoolExecutor.setMaximumPoolSize(threadPoolConfigEntity.getMaximumPoolSize());
@@ -63,32 +67,33 @@ public class DynamicThreadPoolAutoConfig {
     }
 
 
-    @Bean("redissonClient")
-    public RedissonClient redissonClient(DynamicThreadPoolAutoProperties properties) {
-        Config config = new Config();
-        config.setCodec(JsonJacksonCodec.INSTANCE);
-        config.useSingleServer()
-                .setAddress("redis://" + properties.getHost() + ":" + properties.getPort())
-                .setPassword(properties.getPassword())
-                .setConnectionPoolSize(properties.getPoolSize())
-                .setConnectionMinimumIdleSize(properties.getMinIdleSize())
-                .setIdleConnectionTimeout(properties.getIdleTimeout())
-                .setConnectTimeout(properties.getConnectTimeout())
-                .setRetryAttempts(properties.getRetryAttempts())
-                .setRetryInterval(properties.getRetryInterval())
-                .setPingConnectionInterval(properties.getPingInterval())
-                .setKeepAlive(properties.isKeepAlive())
-        ;
-
-        RedissonClient redissonClient = Redisson.create(config);
-
-        logger.info("动态线程池，注册器（redis）链接初始化完成。{} {} {}", properties.getHost(), properties.getPoolSize(), !redissonClient.isShutdown());
-
-        return redissonClient;
-    }
+//    @Bean("redissonClientDynamicThreadPool")
+//    public RedissonClient redissonClient(DynamicThreadPoolAutoProperties properties) {
+//        Config config = new Config();
+//        config.setCodec(JsonJacksonCodec.INSTANCE);
+//        config.useSingleServer()
+//                .setAddress("redis://" + properties.getHost() + ":" + properties.getPort())
+//                .setPassword(properties.getPassword())
+//                .setConnectionPoolSize(properties.getPoolSize())
+//                .setConnectionMinimumIdleSize(properties.getMinIdleSize())
+//                .setIdleConnectionTimeout(properties.getIdleTimeout())
+//                .setConnectTimeout(properties.getConnectTimeout())
+//                .setRetryAttempts(properties.getRetryAttempts())
+//                .setRetryInterval(properties.getRetryInterval())
+//                .setPingConnectionInterval(properties.getPingInterval())
+//                .setKeepAlive(properties.isKeepAlive())
+//                .setDatabase(properties.getDatabaseIndex())
+//        ;
+//
+//        RedissonClient redissonClient = Redisson.create(config);
+//
+//        logger.info("动态线程池，注册器（redis）链接初始化完成。{} {} {}", properties.getHost(), properties.getPoolSize(), !redissonClient.isShutdown());
+//
+//        return redissonClient;
+//    }
     @Bean
-    public IRedisRegistry redisRegistry(RedissonClient redissonClient) {
-        return new RedisRegistry(redissonClient);
+    public IRedisRegistry redisRegistry(RedissonClient redissonClientDynamicThreadPool) {
+        return new RedisRegistry(redissonClientDynamicThreadPool);
     }
 
 
