@@ -6,10 +6,7 @@ import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -31,9 +28,9 @@ public class DynamicThreadPoolService implements IDynamicThreadPoolService {
     }
 
     @Override
-    public List<ThreadPoolConfigEntity> queryThreadPoolList() {
+    public Map<String, ThreadPoolConfigEntity> queryThreadPoolList() {
         Set<String> threadPoolBeanNames = threadPoolExecutorMap.keySet();
-        List<ThreadPoolConfigEntity> threadPoolVOS = new ArrayList<>(threadPoolBeanNames.size());
+        Map<String,ThreadPoolConfigEntity> threadPoolVOS =new HashMap<>(threadPoolBeanNames.size());
         for (String beanName : threadPoolBeanNames) {
             ThreadPoolExecutor threadPoolExecutor = threadPoolExecutorMap.get(beanName);
             ThreadPoolConfigEntity threadPoolConfigVO = new ThreadPoolConfigEntity(applicationName, beanName);
@@ -44,7 +41,7 @@ public class DynamicThreadPoolService implements IDynamicThreadPoolService {
             threadPoolConfigVO.setQueueType(threadPoolExecutor.getQueue().getClass().getSimpleName());
             threadPoolConfigVO.setQueueSize(threadPoolExecutor.getQueue().size());
             threadPoolConfigVO.setRemainingCapacity(threadPoolExecutor.getQueue().remainingCapacity());
-            threadPoolVOS.add(threadPoolConfigVO);
+            threadPoolVOS.put(threadPoolConfigVO.getThreadPoolName(),threadPoolConfigVO);
         }
         return threadPoolVOS;
     }

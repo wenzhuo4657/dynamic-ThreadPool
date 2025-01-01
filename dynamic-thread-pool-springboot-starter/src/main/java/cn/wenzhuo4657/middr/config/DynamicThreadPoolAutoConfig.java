@@ -2,6 +2,8 @@ package cn.wenzhuo4657.middr.config;
 
 import cn.wenzhuo4657.middr.Application.IDynamicThreadPoolService;
 import cn.wenzhuo4657.middr.domain.DynamicThreadPoolService;
+import cn.wenzhuo4657.middr.domain.model.Exception.DynamicThreadPoolAppException;
+import cn.wenzhuo4657.middr.domain.model.Exception.ResponseCode;
 import cn.wenzhuo4657.middr.domain.model.enity.ThreadPoolConfigEntity;
 import cn.wenzhuo4657.middr.domain.model.valobj.RegistryEnumVO;
 import cn.wenzhuo4657.middr.registry.IRedisRegistry;
@@ -10,21 +12,16 @@ import cn.wenzhuo4657.middr.tigger.job.ThreadPoolDataReportJob;
 import cn.wenzhuo4657.middr.tigger.listener.ThreadPoolConfigAdjustListener;
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang.StringUtils;
-import org.redisson.Redisson;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
-import org.redisson.codec.JsonJacksonCodec;
-import org.redisson.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -42,32 +39,43 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class DynamicThreadPoolAutoConfig {
     Logger logger= LoggerFactory.getLogger(DynamicThreadPoolAutoConfig.class);
 
-    private String applicationName;
+    private static String applicationName;
     @Bean("dynamicThreadPollService" )
     public DynamicThreadPoolService dynamicThreadPoolService(ApplicationContext context, Map<String,ThreadPoolExecutor> threadPoolExecutorMap,RedissonClient redissonClient){
         applicationName=context.getEnvironment().getProperty("spring.application.name");
         if (StringUtils.isBlank(applicationName)){
-            applicationName="缺省的";
-            logger.warn("动态线程池提示，无法找到应用名称");
+            logger.error("动态线程池提示，无法找到应用名称");
+            throw new DynamicThreadPoolAppException(ResponseCode.ApplicationName_ERROR.getCode(),ResponseCode.ApplicationName_ERROR.getInfo());
         }
-        // 获取缓存数据，设置本地线程池配置
+
         Set<String> threadPoolKeys = threadPoolExecutorMap.keySet();
-        for (String threadPoolKey : threadPoolKeys) {
-            ThreadPoolConfigEntity threadPoolConfigEntity = redissonClient.
-                    <ThreadPoolConfigEntity>
-                    getBucket(RegistryEnumVO.THREAD_POOL_CONFIG_PARAMETER_LIST_KEY.getKey() + "_" + applicationName + "_" + threadPoolKey).get();
-            if (null == threadPoolConfigEntity) continue;
-              //  wenzhuo TODO 2024/12/2 : 更新本地线程池 ，支持更新核心线程和最大线程数配置
-            ThreadPoolExecutor threadPoolExecutor = threadPoolExecutorMap.get(threadPoolKey);
-            threadPoolExecutor.setCorePoolSize(threadPoolConfigEntity.getCorePoolSize());
-            threadPoolExecutor.setMaximumPoolSize(threadPoolConfigEntity.getMaximumPoolSize());
-        }
+
+        // 尝试获取缓存数据，设置本地线程池配置
+        HashMap<String,ThreadPoolConfigEntity> threadPoolConfigEntityList = redissonClient.
+                <HashMap<String,ThreadPoolConfigEntity>>
+                getBucket(RegistryEnumVO.THREAD_POOL_CONFIG_LIST_KEY.getKey() + "_" + applicationName).get();
+
+//        if (null != threadPoolConfigEntityList){
+//
+//            for (String threadPoolKey : threadPoolKeys) {
+//                threadPoolConfigEntityList.
+//
+//                //  wenzhuo TODO 2024/12/2 : 更新本地线程池 ，支持更新核心线程和最大线程数配置
+//                ThreadPoolExecutor threadPoolExecutor = threadPoolExecutorMap.get(threadPoolKey);
+//                threadPoolExecutor.setCorePoolSize(threadPoolConfigEntity.getCorePoolSize());
+//                threadPoolExecutor.setMaximumPoolSize(threadPoolConfigEntity.getMaximumPoolSize());
+//            }
+//        }
+
         logger.info("线程池信息，{}", JSON.toJSONString(threadPoolExecutorMap.keySet()));
         return  new DynamicThreadPoolService(applicationName,threadPoolExecutorMap);
     }
 
+    public static String getApplicationName() {
+        return applicationName;
+    }
 
-//    @Bean("redissonClientDynamicThreadPool")
+    //    @Bean("redissonClientDynamicThreadPool")
 //    public RedissonClient redissonClient(DynamicThreadPoolAutoProperties properties) {
 //        Config config = new Config();
 //        config.setCodec(JsonJacksonCodec.INSTANCE);
@@ -114,7 +122,7 @@ public class DynamicThreadPoolAutoConfig {
     @Bean( "dynamicThreadPoolRedisTopic")
     public RTopic threadPoolConfigAdjustListener(RedissonClient redissonClient, ThreadPoolConfigAdjustListener threadPoolConfigAdjustListener) {
         RTopic topic = redissonClient.getTopic(RegistryEnumVO.DYNAMIC_THREAD_POOL_REDIS_TOPIC.getKey() + "_" + applicationName);
-        topic.addListener(ThreadPoolConfigEntity.class, threadPoolConfigAdjustListener);
+        topic.addListener(HashMap.class, threadPoolConfigAdjustListener);
         return topic;
     }
 

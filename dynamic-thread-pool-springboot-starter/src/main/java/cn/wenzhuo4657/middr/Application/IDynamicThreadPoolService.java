@@ -25,8 +25,9 @@ public interface IDynamicThreadPoolService {
 
       /**
          *  des: 查询线程池配置列表
+       *  String:线程池名称
          * */
-    List<ThreadPoolConfigEntity> queryThreadPoolList();
+    Map<String,ThreadPoolConfigEntity> queryThreadPoolList();
 
 
       /**

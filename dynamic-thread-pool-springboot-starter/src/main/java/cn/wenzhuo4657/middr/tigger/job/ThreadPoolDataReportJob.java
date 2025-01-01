@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @className: ThreadPoolDataReportJob
@@ -31,12 +32,7 @@ public class ThreadPoolDataReportJob {
 
     @Scheduled(cron = "0/20 * * * * ?")
     public void print(){
-        List<ThreadPoolConfigEntity>  list=dynamicThreadPoolService.queryThreadPoolList();
+        Map<String, ThreadPoolConfigEntity> list=dynamicThreadPoolService.queryThreadPoolList();
         redisRegistry.reportThreadPool(list);
-        logger.info("dynamic-thread-pool,上报线程池信息{}", JSON.toJSONString(list));
-        for (ThreadPoolConfigEntity entity : list) {
-            redisRegistry.reportThreadPoolConfigParameter(entity);
-            logger.info("dynamic-thread-pool，上报线程池配置：{}", JSON.toJSONString(entity));
-        }
     }
 }
