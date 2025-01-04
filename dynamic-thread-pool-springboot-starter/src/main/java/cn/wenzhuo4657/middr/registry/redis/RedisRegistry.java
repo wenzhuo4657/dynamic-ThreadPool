@@ -5,9 +5,14 @@ import cn.wenzhuo4657.middr.domain.model.enity.ThreadPoolConfigEntity;
 import cn.wenzhuo4657.middr.domain.model.valobj.RegistryEnumVO;
 import cn.wenzhuo4657.middr.registry.IRedisRegistry;
 import org.redisson.api.RList;
+import org.redisson.api.RLock;
+import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @className: RedisRegistry
@@ -24,17 +29,19 @@ public class RedisRegistry implements IRedisRegistry {
 
     @Override
     public void reportThreadPool(Map<String, ThreadPoolConfigEntity> threadPoolEntities) {
-//        RList<Object> list = redissonClient.getList(RegistryEnumVO.THREAD_POOL_CONFIG_LIST_KEY.getKey());
-//
-//        for (Object obj:list){
-//            if (obj instanceof ThreadPoolConfigEntity){
-//                String appName = ((ThreadPoolConfigEntity) obj).getAppName();
-//                if (appName!=null&& DynamicThreadPoolAutoConfig.getApplicationName().equals(appName)){
-//                    list.remove(obj);
-//                }
-//            }
-//        }
-//        list.addAll(threadPoolEntities);
+        RMap<String, ThreadPoolConfigEntity> map = redissonClient.getMap(DynamicThreadPoolAutoConfig.getApplicationConfig());
+
+        for (String  key:map.keySet()){
+            ThreadPoolConfigEntity threadPoolConfigEntity = threadPoolEntities.get(key);
+            if (Objects.isNull(threadPoolConfigEntity)){
+                continue;
+            }
+            map.putIfExists(key,threadPoolConfigEntity);
+        }
     }
 
+    @Override
+    public RLock getRLockByName(String name) {
+        return redissonClient.getFairLock(name);
+    }
 }

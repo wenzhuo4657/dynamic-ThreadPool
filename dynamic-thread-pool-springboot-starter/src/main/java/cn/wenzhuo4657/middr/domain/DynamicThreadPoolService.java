@@ -77,5 +77,8 @@ public class DynamicThreadPoolService implements IDynamicThreadPoolService {
         // 设置参数 「调整核心线程数和最大线程数」
         threadPoolExecutor.setCorePoolSize(threadPoolConfigEntity.getCorePoolSize());
         threadPoolExecutor.setMaximumPoolSize(threadPoolConfigEntity.getMaximumPoolSize());
+
+
+        logger.info("同步线程池配置成功");
     }
 }

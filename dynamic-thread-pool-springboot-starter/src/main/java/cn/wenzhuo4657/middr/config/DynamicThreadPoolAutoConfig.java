@@ -40,6 +40,11 @@ public class DynamicThreadPoolAutoConfig {
     Logger logger= LoggerFactory.getLogger(DynamicThreadPoolAutoConfig.class);
 
     private static String applicationName;
+
+    public static String   getApplicationConfig(){
+        return  RegistryEnumVO.THREAD_POOL_CONFIG_LIST_KEY.getKey() + "_" + applicationName;
+    }
+
     @Bean("dynamicThreadPollService" )
     public DynamicThreadPoolService dynamicThreadPoolService(ApplicationContext context, Map<String,ThreadPoolExecutor> threadPoolExecutorMap,RedissonClient redissonClient){
         applicationName=context.getEnvironment().getProperty("spring.application.name");
@@ -51,21 +56,19 @@ public class DynamicThreadPoolAutoConfig {
         Set<String> threadPoolKeys = threadPoolExecutorMap.keySet();
 
         // 尝试获取缓存数据，设置本地线程池配置
+
         HashMap<String,ThreadPoolConfigEntity> threadPoolConfigEntityList = redissonClient.
                 <HashMap<String,ThreadPoolConfigEntity>>
-                getBucket(RegistryEnumVO.THREAD_POOL_CONFIG_LIST_KEY.getKey() + "_" + applicationName).get();
+                getBucket(getApplicationConfig()).get();
 
-//        if (null != threadPoolConfigEntityList){
-//
-//            for (String threadPoolKey : threadPoolKeys) {
-//                threadPoolConfigEntityList.
-//
-//                //  wenzhuo TODO 2024/12/2 : 更新本地线程池 ，支持更新核心线程和最大线程数配置
-//                ThreadPoolExecutor threadPoolExecutor = threadPoolExecutorMap.get(threadPoolKey);
-//                threadPoolExecutor.setCorePoolSize(threadPoolConfigEntity.getCorePoolSize());
-//                threadPoolExecutor.setMaximumPoolSize(threadPoolConfigEntity.getMaximumPoolSize());
-//            }
-//        }
+        if (null != threadPoolConfigEntityList){
+
+            for (String threadPoolKey : threadPoolKeys) {
+                ThreadPoolConfigEntity threadPoolConfigEntity = threadPoolConfigEntityList.get(threadPoolKey);
+                threadPoolConfigEntity.setCorePoolSize(threadPoolConfigEntity.getCorePoolSize());
+                threadPoolConfigEntity.setMaximumPoolSize(threadPoolConfigEntity.getMaximumPoolSize());
+            }
+        }
 
         logger.info("线程池信息，{}", JSON.toJSONString(threadPoolExecutorMap.keySet()));
         return  new DynamicThreadPoolService(applicationName,threadPoolExecutorMap);
