@@ -1,6 +1,6 @@
 package cn.wenzhuo4657.middr.config;
 
-import cn.wenzhuo4657.middr.tigger.job.DynamicStackStateHandler;
+import cn.wenzhuo4657.middr.tigger.job.DynamicStackStateServer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -16,8 +16,8 @@ import javax.annotation.Resource;
 @Configuration
 @EnableWebSocket
 public class MyWsConfig implements WebSocketConfigurer {
-    @Resource
-    DynamicStackStateHandler myWsHandler;
+
+    DynamicStackStateServer myWsHandler=new DynamicStackStateServer();
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {

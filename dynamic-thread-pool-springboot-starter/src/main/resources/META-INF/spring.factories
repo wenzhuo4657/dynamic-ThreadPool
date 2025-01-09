@@ -1,1 +1,2 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=cn.wenzhuo4657.middr.config.DynamicThreadPoolAutoConfig
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=cn.wenzhuo4657.middr.config.DynamicThreadPoolAutoConfig\
+  ,cn.wenzhuo4657.middr.config.MyWsConfig

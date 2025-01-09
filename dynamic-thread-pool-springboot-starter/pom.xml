@@ -12,6 +12,9 @@
 
     <artifactId>dynamic-thread-pool-springboot-starter</artifactId>
     <version>1.2-SNAPSHOT</version>
+    <properties>
+        <protostuff.version>1.0.10</protostuff.version>
+    </properties>
 
     <packaging>jar</packaging>
     <dependencies>
@@ -59,6 +62,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
             <version>2.7.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dyuproject.protostuff</groupId>
+            <artifactId>protostuff-core</artifactId>
+            <version>${protostuff.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dyuproject.protostuff</groupId>
+            <artifactId>protostuff-runtime</artifactId>
+            <version>${protostuff.version}</version>
         </dependency>
     </dependencies>
 
