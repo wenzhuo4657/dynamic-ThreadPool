@@ -17,21 +17,44 @@
 
 <body>
 <p  id="talkMsg"></p>
-<button id="sendBtn" onclick="sendMsg()">发送</button>
+<input type="text" id="wsAddress" placeholder="ip:port">
+<button id="connectBtn" onclick="connectWebSocket()">连接</button>
+<button id="sendBtn" onclick="sendMsg()">获取</button>
 <script type="text/javascript">
-       let ws = new WebSocket("ws://localhost:8080/myWs1");
+    function connectWebSocket() {
+        const wsAddress = document.getElementById("wsAddress").value;
+        if (!wsAddress) {
+            alert("请输入 WebSocket 地址（ip:port）");
+            return;
+        }
+
+        // 初始化 WebSocket
+        ws = new WebSocket("ws://" + wsAddress + "/myWs1");
+
+        ws.onmessage = function (event) {
+            if (event.data instanceof Blob) {
+                // 处理 Blob
+                console.log("接收到 Blob 数据");
+                handleBlob(event.data);
+            } else {
+                // 处理文本消息
+                console.log("接收到文本消息: " + event.data);
+                document.getElementById("talkMsg").innerHTML += "<br>" + event.data;
+            }
+        };
+    }
 
     ws.onmessage = function (event) {
-    if (event.data instanceof Blob) {
-        // 处理 Blob
-        console.log("接收到 Blob 数据");
-        handleBlob(event.data);
-    } else {
-        // 处理文本消息
-        console.log("接收到文本消息: " + event.data);
-        document.getElementById("talkMsg").innerHTML = event.data;
+        if (event.data instanceof Blob) {
+            // 处理 Blob
+            console.log("接收到 Blob 数据");
+            handleBlob(event.data);
+        } else {
+            // 处理文本消息
+            console.log("接收到文本消息: " + event.data);
+            document.getElementById("talkMsg").innerHTML = event.data;
+        }
     }
-}
     function sendMsg() {
 
         ws.send("1");
