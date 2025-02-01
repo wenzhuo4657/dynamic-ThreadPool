@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket</title>
+</head>
+
+<style>
+    #talkMsg{
+        overflow: auto;
+        border:1px solid black;
+        width: 600px;
+        height: 500px;
+    }
+
+</style>
+
+<body>
+<p  id="talkMsg"></p>
+<button id="sendBtn" onclick="sendMsg()">发送</button>
+<script type="text/javascript">
+       let ws = new WebSocket("ws://localhost:8080/myWs1");
+
+    ws.onmessage = function (event) {
+    if (event.data instanceof Blob) {
+        // 处理 Blob
+        console.log("接收到 Blob 数据");
+        handleBlob(event.data);
+    } else {
+        // 处理文本消息
+        console.log("接收到文本消息: " + event.data);
+        document.getElementById("talkMsg").innerHTML = event.data;
+    }
+}
+    function sendMsg() {
+
+        ws.send("1");
+        document.getElementById("message").value=""
+    }
+    function handleBlob(blobData) {
+        // 将 Blob 转换为文本
+        const reader = new FileReader();
+        reader.onload = function() {
+            const text = reader.result;
+            document.getElementById("talkMsg").innerHTML += "<br>"+ text;
+        };
+        reader.readAsText(blobData); // 读取 Blob 为文本
+    }
+</script>
+</body>
+</html>

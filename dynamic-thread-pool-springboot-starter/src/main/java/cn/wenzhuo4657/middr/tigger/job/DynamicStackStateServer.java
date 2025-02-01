@@ -26,11 +26,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DynamicStackStateServer  extends AbstractWebSocketHandler {
     private static final Logger log= LoggerFactory.getLogger(DynamicStackStateServer.class);
 
-    private static final Map<String , SessionBean> sessionBeanMap;//web层的连接
+//    private static final Map<String , SessionBean> sessionBeanMap;//web层的连接
+    private static  SessionBean sessionBean;
     private static AtomicInteger clientIdMaker;
 
     static {
-        sessionBeanMap=new HashMap<>();
+//        sessionBeanMap=new HashMap<>();
         clientIdMaker=new AtomicInteger(1);
     }
 
@@ -49,9 +50,9 @@ public class DynamicStackStateServer  extends AbstractWebSocketHandler {
          *  @author:wenzhuo4657
             des: 作为使用者只会发送二进制消息，一旦检测到有人发送了文本消息则认为其要接收线程帧信息。
         */
-        SessionBean sessionBean=new SessionBean(session,clientIdMaker.getAndIncrement());
-        sessionBeanMap.put(session.getId(),sessionBean);
-        log.info(sessionBeanMap.get(session.getId()).getClientId()+"请求接收线程帧信息。");
+        sessionBean=new SessionBean(session,clientIdMaker.getAndIncrement());
+//        sessionBeanMap.put(session.getId(),sessionBean);
+        log.info(sessionBean.getClientId()+"请求接收线程帧信息.");
         uploadStackInfo uploadStackInfo = new uploadStackInfo();
         uploadStackInfo.run();
     }
@@ -65,20 +66,20 @@ public class DynamicStackStateServer  extends AbstractWebSocketHandler {
     public void sendMessage( StackTraceElementEntity entity){
 
 
-        for(String key:sessionBeanMap.keySet()){
+
             try {
-                sessionBeanMap.get(key).getWebSocketSession().sendMessage(new BinaryMessage("1231".getBytes()));
+                sessionBean.getWebSocketSession().sendMessage(new BinaryMessage(entity.toString().getBytes()));
             } catch (IOException e) {
 //                e.printStackTrace();
                 log.error(e.getMessage());
             }
-        }
+
     }
 
     class StackTraceElementEntity{
 
         private String threadName;
-//        private List<String> stackTraceElements;
+        private List<String> stackTraceElements;
         private int stackTraceLength;
         public StackTraceElementEntity(String threadName, List<String> stackTraceElements) {
             this.threadName = threadName;
@@ -90,9 +91,9 @@ public class DynamicStackStateServer  extends AbstractWebSocketHandler {
             return threadName;
         }
 
-//        public List<String> getStackTraceElements() {
-////            return stackTraceElements;
-//        }
+        public List<String> getStackTraceElements() {
+            return stackTraceElements;
+        }
 
         public int getStackTraceLength() {
             return stackTraceLength;
@@ -100,10 +101,9 @@ public class DynamicStackStateServer  extends AbstractWebSocketHandler {
 
         @Override
         public String toString() {
-            return "StackTraceElementEntity{" +
+            return
                     "threadName='" + threadName + '\'' +
-//                    ", stackTraceElements=" + stackTraceElements +
-                    '}';
+                    ", stackTraceLength=" + stackTraceLength ;
         }
     }
 
